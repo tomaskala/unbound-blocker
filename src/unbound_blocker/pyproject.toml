@@ -1,0 +1,83 @@
+[build-system]
+requires = [ "setuptools >= 6.1.0" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unbound-blocker"
+version = "0.1.0"
+authors = [
+  { name = "Tomas Kala", email = "public@tomaskala.com" },
+]
+description = "DNS-level content blocking utilizing Unbound"
+readme = "README.md"
+requires-python = ">= 3.10"
+dependencies = [
+  "click >= 8.1.3",
+  "requests >= 2.28.2",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: The Unlicense (Unlicense)",
+  "Operating System :: POSIX :: Linux",
+]
+
+[project.scripts]
+fetch_blocklist = "unbound_blocker.fetch_blocklist:main"
+
+[tool.ruff]
+select = [
+  "F",
+  "E",
+  "W",
+  "I",
+  "N",
+  "UP",
+  "YTT",
+  "ANN",
+  "ASYNC",
+  "S",
+  "BLE",
+  "FBT",
+  "B",
+  "A",
+  "COM",
+  "C4",
+  "DTZ",
+  "T10",
+  "EM",
+  "EXE",
+  "ISC",
+  "ICN",
+  "G",
+  "INP",
+  "PIE",
+  "PT",
+  "Q",
+  "RSE",
+  "RET",
+  "SLF",
+  "SIM",
+  "TID",
+  "TCH",
+  "INT",
+  "ARG",
+  "PTH",
+  "TD",
+  "ERA",
+  "PGH",
+  "PL",
+  "TRY",
+  "FLY",
+  "RUF",
+]
+ignore = [
+  "S603",  # `subprocess` call: check for execution of untrusted input
+  "PLR2004",  # magic value used in comparison
+]
+
+[tool.ruff.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.mypy]
+strict = true
