@@ -17,7 +17,7 @@
         default = pkgs.python3Packages.buildPythonApplication {
           pname = "unbound-blocker";
           version = "0.1.0";
-          src = ./unbound_blocker;
+          src = ./.;
           format = "pyproject";
 
           nativeBuildInputs = with pkgs.python3Packages; [

@@ -8,7 +8,7 @@ Supports an optional whitelist of domains that should never be blocked.
 
 Install the package.
 ```
-$ pip install ./unbound_blocker
+$ pip install .
 ```
 
 Create a file with one blocklist source per line. Empty lines are ignored, 
