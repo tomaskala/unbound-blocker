@@ -1,6 +1,5 @@
 {
   description = "DNS blocker utilizing unbound(8)";
-
   nixConfig.bash-prompt = "[nix-develop]$ ";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
