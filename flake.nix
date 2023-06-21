@@ -34,8 +34,9 @@
 
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          packages = with pkgs; [ deadnix nixfmt statix ];
-
+          packages = with pkgs;
+            [ deadnix nixfmt statix ]
+            ++ self.packages.${pkgs.system}.default.optional-dependencies.lint;
           inputsFrom = [ self.packages.${pkgs.system}.default ];
         };
       });
