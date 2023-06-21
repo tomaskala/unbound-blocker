@@ -36,7 +36,7 @@
         default = pkgs.mkShell {
           packages = with pkgs; [ deadnix nixfmt statix ];
 
-          inputsFrom = [ self.packages."${pkgs.system}".default ];
+          inputsFrom = [ self.packages.${pkgs.system}.default ];
         };
       });
 
@@ -53,7 +53,7 @@
         black = pkgs.callPackage ./checks/black.nix { };
         mypy = pkgs.callPackage ./checks/mypy.nix {
           pythonEnv = pkgs.python3.withPackages (_:
-            self.packages."${pkgs.system}".default.optional-dependencies.lint);
+            self.packages.${pkgs.system}.default.optional-dependencies.lint);
         };
         ruff = pkgs.callPackage ./checks/ruff.nix { };
       });
