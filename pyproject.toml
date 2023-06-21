@@ -21,8 +21,19 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
 ]
 
+[project.optional-dependencies]
+lint = [
+  "black >= 23.1.0",
+  "mypy >= 1.0.1",
+  "ruff >= 0.0.269",
+  "types-requests >= 2.30.0.0",
+]
+
 [project.scripts]
 fetch_blocklist = "unbound_blocker.fetch_blocklist:main"
+
+[tool.setuptools]
+packages = ["unbound_blocker"]
 
 [tool.ruff]
 select = [
