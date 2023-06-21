@@ -10,9 +10,9 @@
 
       forAllSystems = f:
         nixpkgs.lib.genAttrs systems
-        (system: f system nixpkgs.legacyPackages.${system});
+        (system: f nixpkgs.legacyPackages.${system});
     in {
-      packages = forAllSystems (_: pkgs: {
+      packages = forAllSystems (pkgs: {
         default = pkgs.python3Packages.buildPythonApplication {
           pname = "unbound-blocker";
           version = "0.1.0";
@@ -32,15 +32,15 @@
         };
       });
 
-      devShells = forAllSystems (system: pkgs: {
+      devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [ deadnix nixfmt statix ];
 
-          inputsFrom = [ self.packages."${system}".default ];
+          inputsFrom = [ self.packages."${pkgs.system}".default ];
         };
       });
 
-      formatter = forAllSystems (_: pkgs:
+      formatter = forAllSystems (pkgs:
         pkgs.writeShellApplication {
           name = "nixfmt";
           runtimeInputs = with pkgs; [ findutils nixfmt ];
@@ -49,11 +49,11 @@
           '';
         });
 
-      checks = forAllSystems (system: pkgs: {
+      checks = forAllSystems (pkgs: {
         black = pkgs.callPackage ./checks/black.nix { };
         mypy = pkgs.callPackage ./checks/mypy.nix {
-          pythonEnv = pkgs.python3.withPackages
-            (_: self.packages."${system}".default.optional-dependencies.lint);
+          pythonEnv = pkgs.python3.withPackages (_:
+            self.packages."${pkgs.system}".default.optional-dependencies.lint);
         };
         ruff = pkgs.callPackage ./checks/ruff.nix { };
       });
