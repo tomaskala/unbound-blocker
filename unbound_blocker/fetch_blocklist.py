@@ -4,7 +4,7 @@ import re
 import sys
 from collections.abc import Iterator
 from pathlib import Path
-from subprocess import run
+from subprocess import CalledProcessError, run
 
 import click
 import requests
@@ -55,7 +55,7 @@ def retrieve_blocklist(sources: Path) -> set[str]:
         try:
             response = requests.get(source, timeout=REQUEST_TIMEOUT)
         except Timeout:
-            LOGGER.error("Timeout when retrieving source '%s'", source)
+            LOGGER.exception("Timeout when retrieving source '%s'", source)
             continue
 
         if not response:
@@ -76,20 +76,20 @@ def clear_blocklist(unbound_control: Path) -> None:
     LOGGER.info("Clearing blocklist")
     LOGGER.info("Obtaining current local zones")
 
-    p = run(
-        [unbound_control, "list_local_zones"],
-        bufsize=1,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-    )
-
-    print(p.stderr, file=sys.stderr)
-
-    if p.returncode != 0:
-        LOGGER.critical("%s exitted with code %d", unbound_control, p.returncode)
+    try:
+        p = run(
+            [unbound_control, "list_local_zones"],
+            bufsize=1,
+            capture_output=True,
+            check=True,
+            text=True,
+            encoding="utf-8",
+        )
+    except CalledProcessError:
+        LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
         sys.exit(1)
 
+    print(p.stderr, file=sys.stderr)
     blocklist = []
 
     for local_zone in p.stdout.splitlines():
@@ -105,17 +105,18 @@ def clear_blocklist(unbound_control: Path) -> None:
     LOGGER.info("Removing current blocklist (%d domains)", len(blocklist))
 
     if blocklist:
-        p = run(
-            [unbound_control, "local_zones_remove"],
-            input="\n".join(blocklist) + "\n",
-            bufsize=1,
-            capture_output=False,
-            text=True,
-            encoding="utf-8",
-        )
-
-        if p.returncode != 0:
-            LOGGER.critical("%s exitted with code %d", unbound_control, p.returncode)
+        try:
+            p = run(
+                [unbound_control, "local_zones_remove"],
+                input="\n".join(blocklist) + "\n",
+                bufsize=1,
+                capture_output=False,
+                check=True,
+                text=True,
+                encoding="utf-8",
+            )
+        except CalledProcessError:
+            LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
             sys.exit(1)
 
 
@@ -124,17 +125,18 @@ def load_blocklist(blocklist: list[str], unbound_control: Path) -> None:
     local_zones = [f"{domain}. always_null" for domain in blocklist]
 
     if local_zones:
-        p = run(
-            [unbound_control, "local_zones"],
-            input="\n".join(local_zones) + "\n",
-            bufsize=1,
-            capture_output=False,
-            text=True,
-            encoding="utf-8",
-        )
-
-        if p.returncode != 0:
-            LOGGER.critical("%s exitted with code %d", unbound_control, p.returncode)
+        try:
+            p = run(
+                [unbound_control, "local_zones"],
+                input="\n".join(local_zones) + "\n",
+                bufsize=1,
+                capture_output=False,
+                check=True,
+                text=True,
+                encoding="utf-8",
+            )
+        except CalledProcessError:
+            LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
             sys.exit(1)
 
     LOGGER.info("Success")
@@ -166,8 +168,7 @@ def load_blocklist(blocklist: list[str], unbound_control: Path) -> None:
     help="Whitelist file with one domain per line",
 )
 def main(sources: Path, unbound_control: Path, whitelist: Path) -> None:
-    """
-    Use unbound(8) as a DNS blocker.
+    """Use unbound(8) as a DNS blocker.
 
     Read one blocklist URL per line from SOURCES, retrieve its contents and parse
     it as a blocklist in the hosts(5) format. The obtained domains are passed to
