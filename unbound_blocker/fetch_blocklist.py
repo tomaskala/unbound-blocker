@@ -89,7 +89,7 @@ def clear_blocklist(unbound_control: Path) -> None:
         LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
         sys.exit(1)
 
-    print(p.stderr, file=sys.stderr)
+    sys.stderr.write(p.stderr)
     blocklist = []
 
     for local_zone in p.stdout.splitlines():
