@@ -86,7 +86,7 @@ def clear_blocklist(unbound_control: Path) -> None:
             encoding="utf-8",
         )
     except CalledProcessError:
-        LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
+        LOGGER.exception("error during local zones listing")
         sys.exit(1)
 
     sys.stderr.write(p.stderr)
@@ -116,7 +116,7 @@ def clear_blocklist(unbound_control: Path) -> None:
                 encoding="utf-8",
             )
         except CalledProcessError:
-            LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
+            LOGGER.exception("error during local zones removal")
             sys.exit(1)
 
 
@@ -126,7 +126,7 @@ def load_blocklist(blocklist: list[str], unbound_control: Path) -> None:
 
     if local_zones:
         try:
-            p = run(
+            run(
                 [unbound_control, "local_zones"],
                 input="\n".join(local_zones) + "\n",
                 bufsize=1,
@@ -136,7 +136,7 @@ def load_blocklist(blocklist: list[str], unbound_control: Path) -> None:
                 encoding="utf-8",
             )
         except CalledProcessError:
-            LOGGER.exception("%s exitted with code %d", unbound_control, p.returncode)
+            LOGGER.exception("error during blocklist loading")
             sys.exit(1)
 
     LOGGER.info("Success")
